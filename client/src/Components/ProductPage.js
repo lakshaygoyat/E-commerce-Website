@@ -13,7 +13,7 @@ const ProductPage = () => {
     const paymentHandler = async () => {
         try {
             // First, make the GET request to retrieve the key
-            const keyResponse = await fetch("https://payment-gateway-dwim.onrender.com/api/v1/getkey");
+            const keyResponse = await fetch("https://payment-gateway-448t.onrender.com/api/v1/getkey");
             const {key_id} = await keyResponse.json();
             console.log('Key Data:', key_id);
     
@@ -25,7 +25,7 @@ const ProductPage = () => {
             };
     
             // Make the POST request
-            const checkoutResponse = await fetch("https://payment-gateway-dwim.onrender.com/api/v1/checkout", {
+            const checkoutResponse = await fetch("https://payment-gateway-448t.onrender.com/api/v1/checkout", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
