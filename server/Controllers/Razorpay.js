@@ -7,7 +7,7 @@ const Payment=require('../Models/Payment');
 exports.capturePayment = async (req, res) => {
     try {
         // Payment options
-        const amount = req.body.amount;
+        const amount = req.body.amount*100;
         const currency = "INR";
         const receipt = generateReceipt();
 
@@ -23,7 +23,7 @@ exports.capturePayment = async (req, res) => {
 
         // Initiate the payment using Razorpay
         const paymentResponse = await instance.orders.create(options);
-        console.log("Payment Response:", paymentResponse);
+        //console.log("Payment Response:", paymentResponse);
 
         // Return response
         //console.log("hello");
@@ -61,7 +61,10 @@ exports.paymentVerification = async (req, res) => {
     
         const isAuthentic = expectedSignature === razorpay_signature;
     
-        //console.log(res);
+        // console.log("razorpaySig -> ",razorpay_signature);
+        // console.log("expectedSig -> ",expectedSignature);
+
+        console.log("hey  -> ",req);
 
         if(!isAuthentic)
         {
@@ -71,7 +74,7 @@ exports.paymentVerification = async (req, res) => {
             });
         }
 
-        // Database operations can be performed here
+        //Database operations performed here
         const newEntry = await Payment.create({
             razorpay_order_id,
             razorpay_payment_id,
@@ -80,11 +83,6 @@ exports.paymentVerification = async (req, res) => {
 
         console.log("Payment is verified successfully");
         res.redirect(`http://localhost:3000/paymentsuccess?reference=${razorpay_payment_id}`);
-
-        return res.status(200).json({
-            success:true,
-            message:"Payment is verified successfully"
-        })
     }
     catch(error)
     {
@@ -99,7 +97,7 @@ exports.paymentVerification = async (req, res) => {
 // payment refund
 exports.paymentRefund= async (req,res)=>{
     try{
-        const {orderId} = req.body;
+        const {orderId , amount} = req.body;
 
         //validation
         if(!orderId || !amount)
@@ -110,6 +108,19 @@ exports.paymentRefund= async (req,res)=>{
             })
         }
 
+        //fetch payment id 
+        const data = await Payment.findOne({
+            razorpay_order_id:orderId
+        });
+
+        if(!data){
+            return res.status(400).json({
+                success:false,
+                message:"orderId is invalid"
+            })
+        }
+        
+        const paymentId = data.razorpay_payment_id;
         // console.log(paymentId);
         // console.log(receipt);
 
@@ -163,16 +174,29 @@ exports.fetchAllPayments=async(req,res)=>{
 exports.fetchPaymentWithId = async(req,res)=>{
     try{
 
-        const {paymentId}=req.body;
+        const {orderId}=req.body;
 
         //validation
-        if(!paymentId)
+        if(!orderId)
         {
             return res.status(400).json({
                 success:false,
-                message:"paymentId is missing"
+                message:"orderId is missing"
             })
         }
+
+         //fetch payment id 
+         const data = await Payment.findOne({
+            razorpay_order_id:orderId
+        });
+
+        if(!data){
+            return res.status(400).json({
+                success:false,
+                message:"orderId is invalid"
+            })
+        }
+        const paymentId = data.razorpay_payment_id;
 
         const response= await instance.payments.fetch(paymentId);
         console.log(response);
@@ -198,17 +222,30 @@ exports.fetchPaymentWithId = async(req,res)=>{
 exports.fetchCardDetails = async(req,res)=>{
     try{
 
-        const {paymentId}=req.body;
+        const {orderId}=req.body;
 
         //validation
-        if(!paymentId)
+        if(!orderId)
         {
             return res.status(400).json({
                 success:false,
-                message:"paymentId is missing"
+                message:"orderId is missing"
             })
         }
 
+        //fetch payment id 
+        const data = await Payment.findOne({
+            razorpay_order_id:orderId
+        });
+
+        if(!data){
+            return res.status(400).json({
+                success:false,
+                message:"orderId is invalid"
+            })
+        }
+        const paymentId = data.razorpay_payment_id;
+        
         const response= await instance.payments.fetchCardDetails(paymentId)
         console.log(response);
 
