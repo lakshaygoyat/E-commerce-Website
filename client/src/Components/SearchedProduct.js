@@ -1,6 +1,7 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ProductCard from './ProductCard';
+import '../Style/searchedproduct.css'
 
 const SearchedProduct = () => {
     const location = useLocation();

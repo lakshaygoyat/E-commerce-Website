@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom';
+import { useNavigate ,Link } from 'react-router-dom';
 import "../Style/navBar.css";
 
 const NavBar = () => {
@@ -27,18 +27,14 @@ const NavBar = () => {
   return (
     <div className='nav-bar'>
         <div className='nav-1'>
-            <img 
-              src="https://www.shutterstock.com/image-vector/shopping-logo-ecommerce-logotype-shooping-260nw-1978607771.jpg" 
-              alt="logo"
-            ></img>
+            <Link to="/">
+              <img 
+                src="https://t3.ftcdn.net/jpg/02/47/48/00/360_F_247480017_ST4hotATsrcErAja0VzdUsrrVBMIcE4u.jpg"
+              ></img>
+            </Link>
         </div>
+  
         <div className='nav-2'>
-            <h3>Categories</h3>
-            <h3>Deal</h3>
-            <h3>What's new</h3>
-            <h3>Delivery</h3>
-        </div>
-        <div className='nav-3'>
             <input
              placeholder=' search'
              value={text}
@@ -51,7 +47,6 @@ const NavBar = () => {
               }}
             >
             </input>
-            <h3>Cart</h3>
         </div>
     </div>
   )

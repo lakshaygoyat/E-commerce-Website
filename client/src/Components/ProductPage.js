@@ -19,7 +19,7 @@ const ProductPage = () => {
     
             // Prepare the body for the POST request
             const requestBody = {
-                amount: 2000,
+                amount: product.price,
                 currency: "INR",
                 receipt: "Receipt no. 1"
             };
@@ -77,15 +77,15 @@ const ProductPage = () => {
                   alt="thumbnail"
                 >
                 </img>
-                <div className='multiple-images'>
+                <div className='images'>
                     {
                         product.images.map((image)=>(
-                            <div className='images'>
+                        
                                 <img 
                                   src={image}
                                 >
                                 </img>
-                            </div>
+                            
                         ))
                     }
                 </div>

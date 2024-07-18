@@ -26,7 +26,8 @@ const Body = () => {
         <div className='body'>
             <div className='content-video'>
                 <div className='content-video-1'>
-                    <h1>F <br />A<br />S<br />H<br />I<br />O<br />N</h1>
+                    <img src="https://c8.alamy.com/comp/2KKFMED/stylish-man-cartoon-male-characters-men-in-fashion-clothes-flat-style-vector-illustration-2KKFMED.jpg">
+                    </img>
                 </div>
                 <video
                     src={video}
