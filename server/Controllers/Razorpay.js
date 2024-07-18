@@ -82,7 +82,7 @@ exports.paymentVerification = async (req, res) => {
         });
 
         console.log("Payment is verified successfully");
-        res.redirect(`http://localhost:3000/paymentsuccess?reference=${razorpay_payment_id}`);
+        res.redirect(`https://payment-gateway-lilac.vercel.app/paymentsuccess?reference=${razorpay_payment_id}`);
     }
     catch(error)
     {
@@ -245,7 +245,7 @@ exports.fetchCardDetails = async(req,res)=>{
             })
         }
         const paymentId = data.razorpay_payment_id;
-        
+
         const response= await instance.payments.fetchCardDetails(paymentId)
         console.log(response);
 
