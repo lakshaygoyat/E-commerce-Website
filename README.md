@@ -1,117 +1,118 @@
-Payment Integration Project
-===========================
+E-Commerce Web Application
+==========================
 
-Overview
---------
-
-This project demonstrates a complete payment integration system using React and Node.js, featuring various payment functionalities and a user-friendly interface.
+This is an e-commerce web application built with the MERN (MongoDB, Express.js, React.js, Node.js) stack. The application includes features like user authentication, product search, cart management, and handling of ordered and refunded products.
 
 Features
 --------
 
-*   **Capture Payment**: API to capture a payment transaction.
+*   **User Authentication**: Secure login and signup functionality.
     
-*   **Verify Payment**: API to verify the authenticity of a payment.
+*   **Product Search**: Search products and view product details.
     
-*   **Fetch All Payments**: API to retrieve all payment transactions.
+*   **Cart Management**: Add and remove products from the cart.
     
-*   **Fetch Payment by ID**: API to fetch details of a specific payment using its ID.
+*   **Order Management**: View ordered and refunded products.
     
-*   **Fetch Card Details**: API to retrieve details of a card.
-    
-*   **Get Key ID**: API to get the key ID required for payment processing.
+*   **Responsive Design**: Fully responsive layout for all devices.
     
 
-Frontend
---------
+Tech Stack
+----------
 
-### Components
-
-*   **NavBar**: A responsive navigation bar with a search feature.
+*   **Frontend**: React.js
     
-*   **Body**: The main content area displaying a video and product listings.
+*   **Backend**: Node.js, Express.js , Razorpay
     
-*   **ProductCard**: Displays individual product details in a card format.
+*   **Database**: MongoDB
     
-*   **ProductPage**: Detailed view of a product with images, description, and purchase options.
-    
-*   **SearchedProduct**: Displays search results with product cards.
-    
-*   **PaymentSuccess**: Confirmation page for successful payments.
+*   **Styling**: CSS, CSS Modules
     
 
-### Technologies Used
-
-*   **React**: Frontend library for building user interfaces.
-    
-*   **CSS**: Styling for responsive and visually appealing components.
-    
-
-Backend
--------
-
-### APIs
-
-*   **Capture Payment**: Endpoint to initiate a payment capture.
-    
-*   **Verify Payment**: Endpoint to validate the payment signature.
-    
-*   **Fetch All Payments**: Endpoint to list all payments.
-    
-*   **Fetch Payment by ID**: Endpoint to get details of a specific payment.
-    
-*   **Fetch Card Details**: Endpoint to retrieve card information.
-    
-*   **Get Key ID**: Endpoint to get the API key required for payments.
-    
-
-### Technologies Used
-
-*   **Node.js**: JavaScript runtime for building server-side applications.
-    
-*   **Express**: Web framework for Node.js to handle API requests.
-    
-
-Setup
------
+Getting Started
+---------------
 
 ### Prerequisites
 
-*   Node.js and npm installed.
+*   Node.js
     
-*   Access to a payment gateway account (e.g., Razorpay) for API integration.
+*   npm or yarn
+    
+*   MongoDB
     
 
 ### Installation
 
-1.  bashCopy codegit clone cd
+1.  bashCopy codegit clone https://github.com/roy7077/payment-gateway.gitcd ecommerce-app
     
-2.  bashCopy codecd clientnpm install
+2.  bashCopy codecd servernpm install
     
-3.  bashCopy codecd servernpm install
-    
-4.  Configure environment variables for the backend (e.g., API keys).
-    
-5.  Start the development servers:
-    
-    *   bashCopy codecd clientnpm start
-        
-    *   bashCopy codecd servernpm start
-        
-
-Usage
------
-
-1.  **Navigate** to the application in your browser.
-    
-2.  **Search** for products using the search bar in the NavBar.
-    
-3.  **Browse** products and view details on the ProductPage.
-    
-4.  **Make Payments** and check the status on the PaymentSuccess page.
+3.  bashCopy codecd ../clientnpm install
     
 
-Contributing
+### Environment Variables
+
+Create a .env file in the server directory and add the following environment variables:
+
+```
+MONGO_URI=your_mongodb_connection_string  
+JWT_SECRET=your_jwt_secret  
+RAZORPAY_KEY_ID=your_razorpay_key_id  
+RAZORPAY_KEY_SECRET=your_razorpay_key_secret   `
+```
+### Running the Application
+
+1.  bashCopy codecd server npm start
+    
+2.  bashCopy codecd ../client npm start
+    
+API Endpoints
+-------------
+
+### Authentication
+
+*   **POST** /api/v1/signup - Register a new user
+    
+*   **POST** /api/v1/login - Authenticate user and get token
+    
+
+### Payment
+
+*   **GET** /api/v1/getkeyid - Get Razorpay Key ID
+    
+*   **POST** /api/v1/capturepayment - Capture payment
+    
+*   **POST** /api/v1/refundpayment - Refund payment
+    
+*   **GET** /api/v1/fetchallpayments - Fetch all payments
+    
+*   **GET** /api/v1/getpaymentdetails/:id - Get payment details by ID
+    
+*   **GET** /api/v1/fetchcarddetails - Fetch card details
+    
+*   **POST** /api/v1/paymentverification - Verify payment
+
+POSTMAN LINK - https://www.postman.com/roy707/workspace/shop-cart/collection/32632569-0177389f-3ffc-4d24-a8bb-9c869782bc67?action=share&creator=32632569
+
+### Cart Management
+
+*   **POST** /api/v1/addtocart - Add product to cart
+    
+*   **DELETE** /api/v1/removefromcart - Remove product from cart
+    
+*   **POST** /api/v1/showcartitems - Show all cart items
+    
+
+### Order Management
+
+*   **POST** /api/v1/orderedproducts - Show all ordered products
+    
+*   **POST** /api/v1/refundedproducts - Show all refunded products
+
+### DB Schema
+<img width="928" alt="Ecommerce_DB" src="https://github.com/user-attachments/assets/c8e92ab8-3088-4f8a-902e-35a5d62f8fa7">
+
+Contribution
 ------------
 
 Feel free to submit issues or pull requests if you have suggestions or improvements.
@@ -119,11 +120,4 @@ Feel free to submit issues or pull requests if you have suggestions or improveme
 License
 -------
 
-This project is licensed under the MIT License. See the LICENSE file for details.
-
-Acknowledgments
----------------
-
-*   **Razorpay**: For payment gateway services.
-    
-*   **React** and **Node.js**: For providing the framework and runtime.
+This project is licensed under the MIT License.
