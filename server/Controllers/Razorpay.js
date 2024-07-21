@@ -3,22 +3,23 @@ const { instance } = require('../Config/razorpay');
 const crypto = require('crypto');
 require('dotenv').config();
 const Payment=require('../Models/Payment');
+const OrderedProducts = require('../Models/OrderedProducts');
+const User = require('../Models/User');
 
 exports.capturePayment = async (req, res) => {
     try {
-        // Payment options
+        
         const amount = req.body.amount*100;
         const currency = "INR";
         const receipt = generateReceipt();
+
+        // console.log("amount -> ",amount);
+        // console.log("currency -> ",currency);
 
         const options = {
             amount: amount,
             currency,
             receipt
-            // notes: {
-            //     courseID,
-            //     userID,
-            // }
         };
 
         // Initiate the payment using Razorpay
@@ -26,7 +27,6 @@ exports.capturePayment = async (req, res) => {
         //console.log("Payment Response:", paymentResponse);
 
         // Return response
-        //console.log("hello");
         return res.status(200).json({
             success: true,
             paymentResponse
@@ -47,105 +47,156 @@ function generateReceipt() {
 }
 
 
-
+// Verify payment
 exports.paymentVerification = async (req, res) => {
-    try{
-        const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
-  
+    try {
+        const { product,
+                razorpay_order_id,
+                razorpay_payment_id,
+                razorpay_signature } = req.body;
+
+        const userId = req.user.id;
+
+        // Check if user ID is present
+        if (!userId) {
+            return res.status(400).json({
+                success: false,
+                message: "User id is missing"
+            });
+        }
+
+        // Create the body string to verify the signature
         const body = razorpay_order_id + "|" + razorpay_payment_id;
-    
+
+        // Generate the expected signature using Razorpay secret
         const expectedSignature = crypto
             .createHmac("sha256", process.env.RAZORPAY_SECRET)
             .update(body.toString())
             .digest("hex");
-    
-        const isAuthentic = expectedSignature === razorpay_signature;
-    
-        // console.log("razorpaySig -> ",razorpay_signature);
-        // console.log("expectedSig -> ",expectedSignature);
 
-        console.log("hey  -> ",req);
-
-        if(!isAuthentic)
-        {
+        // Verify if the signature is authentic
+        if (expectedSignature !== razorpay_signature) {
             return res.status(400).json({
                 success: false,
                 message: "Invalid payment signature"
             });
         }
 
-        //Database operations performed here
-        const newEntry = await Payment.create({
+        // Create a new payment record in the database
+        const newPayment = await Payment.create({
             razorpay_order_id,
-            razorpay_payment_id,
             razorpay_signature,
+            razorpay_payment_id,
+            userId
         });
 
-        console.log("Payment is verified successfully");
-        res.redirect(`http://localhost:8080/paymentsuccess?reference=${razorpay_payment_id}`);
-    }
-    catch(error)
-    {
-        res.status(400).json({
+        // Create a new ordered product record
+        const order = await OrderedProducts.create({
+            product,
+            userId,
+            paymentId: newPayment._id,
+            status: "ordered"
+        });
+
+        // Update the payment record with the order ID
+        await Payment.findByIdAndUpdate(newPayment._id, {
+            orderedProductId: order._id
+        });
+
+        // Add the new order to the user's ordered products list
+        await User.findByIdAndUpdate(userId, {
+            $push: { ordered_products: order._id }
+        }, { new: true });
+
+        // Log the successful payment verification
+        console.log("Payment verified successfully");
+
+        // Redirect to the payment success page
+        res.redirect(`http://localhost:3000/paymentsuccess?reference=${razorpay_payment_id}`);
+    } catch (error) {
+        // Log the error and send an internal server error response
+        console.error("Error during payment verification:", error);
+        res.status(500).json({
             success: false,
-            message: "Invalid payment signature"
+            message: "Internal server error"
+        });
+    }
+};
+
+/// Payment refund
+exports.paymentRefund = async (req, res) => {
+    try {
+        const { orderId } = req.body;
+        const userId = req.user.id;
+
+        // Validation for missing fields
+        if (!orderId) {
+            return res.status(400).json({
+                success: false,
+                message: "orderId are missing"
+            });
+        }
+
+        // Check if user ID is present
+        if (!userId) {
+            return res.status(400).json({
+                success: false,
+                message: "User id is missing"
+            });
+        }
+
+        //get payment id
+        const orderdPro = await OrderedProducts.findById(orderId).populate('paymentId');
+        const paymentId = orderdPro?.paymentId?.razorpay_payment_id;
+        const amount = orderdPro.product.amount;
+
+        //console.log(orderdPro);
+
+       // console.log("pay -> ",paymentId);
+        // Process the refund through Razorpay
+        const refundResponse = await instance.payments.refund(paymentId, {
+            amount: amount,
+            speed: "optimum",
+        });
+
+        // Update user schema: Add to refunded products
+        await User.findByIdAndUpdate(
+            userId,
+            { $push: { refunded_products: orderId } },
+            { new: true }
+        );
+
+        // Remove the product from the ordered products list
+        await User.findByIdAndUpdate(
+            userId,
+            { $pull: { ordered_products: orderId } },
+            { new: true }
+        );
+
+        // Update the status of the ordered product to "refunded"
+        await OrderedProducts.findByIdAndUpdate(
+            orderId, // Use orderedId which should be an ObjectId
+            { status: "refunded" },
+            { new: true }
+        );
+
+        // Respond with success
+        return res.status(200).json({
+            success: true,
+            message: "Payment refund successful",
+            refundResponse
+        });
+    } catch (error) {
+        console.error("Error while processing refund:", error);
+        res.status(500).json({
+            success: false,
+            message: "Error while making request for refund",
+            error: error.message
         });
     }
 };
 
 
-// payment refund
-exports.paymentRefund= async (req,res)=>{
-    try{
-        const {orderId , amount} = req.body;
-
-        //validation
-        if(!orderId || !amount)
-        {
-            return res.status(400).json({
-                success:false,
-                message:"Fields are missing"
-            })
-        }
-
-        //fetch payment id 
-        const data = await Payment.findOne({
-            razorpay_order_id:orderId
-        });
-
-        if(!data){
-            return res.status(400).json({
-                success:false,
-                message:"orderId is invalid"
-            })
-        }
-        
-        const paymentId = data.razorpay_payment_id;
-        // console.log(paymentId);
-        // console.log(receipt);
-
-        const refundResponse= await instance.payments.refund(paymentId,{
-            "amount": amount,
-            "speed": "optimum",
-          })
-
-          //console.log(refundResponse);
-
-          return res.status(200).json({
-            success:true,
-            message:"Payment refund successfull",
-            refundResponse
-          })
-    }
-    catch(error){
-        console.log(error);
-        res.status(400).json({
-            success:false,
-            message:"error while making request for refund",
-            error:error
-        })
-    }
-}
 
 
 // fetch details of all payments
@@ -170,12 +221,13 @@ exports.fetchAllPayments=async(req,res)=>{
 }
 
 
-// fetch payment with id
+// fetch payment by id
 exports.fetchPaymentWithId = async(req,res)=>{
     try{
 
         const {orderId}=req.body;
 
+        //console.log(req.body);
         //validation
         if(!orderId)
         {
@@ -199,7 +251,7 @@ exports.fetchPaymentWithId = async(req,res)=>{
         const paymentId = data.razorpay_payment_id;
 
         const response= await instance.payments.fetch(paymentId);
-        console.log(response);
+        //console.log(response);
 
         return res.status(200).json({
             success:true,
@@ -233,7 +285,7 @@ exports.fetchCardDetails = async(req,res)=>{
             })
         }
 
-        //fetch payment id 
+        // fetch payment id 
         const data = await Payment.findOne({
             razorpay_order_id:orderId
         });
@@ -247,7 +299,7 @@ exports.fetchCardDetails = async(req,res)=>{
         const paymentId = data.razorpay_payment_id;
 
         const response= await instance.payments.fetchCardDetails(paymentId)
-        console.log(response);
+        //console.log(response);
 
         return res.status(200).json({
             success:true,

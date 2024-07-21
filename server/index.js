@@ -1,6 +1,7 @@
 const express=require('express');
 const fileUpload=require('express-fileupload');
 const cors = require("cors");
+const cookieParser = require('cookie-parser')
 const paymentRoutes=require('./Routes/paymentRoutes.js');
 const { dbconnect } = require('./Config/databases.js');
 
@@ -9,6 +10,7 @@ const app=express();
 
 app.use(express.urlencoded({ extended: false }));
 app.use(cors());
+app.use(cookieParser());
 app.use(express.json());
 app.use(fileUpload({
     useTempFiles : true,
