@@ -17,7 +17,7 @@ const CartCard = ({ product, removeFromCart }) => {
     }
 
     try {
-      const res = await fetch('http://localhost:8080/api/v1/removefromcart', {
+      const res = await fetch('https://payment-gateway-53ak.onrender.com/api/v1/removefromcart', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

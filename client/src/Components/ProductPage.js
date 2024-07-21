@@ -23,7 +23,7 @@ const ProductPage = () => {
         }
 
         try {
-            const keyResponse = await fetch("http://localhost:8080/api/v1/getkey");
+            const keyResponse = await fetch("https://payment-gateway-53ak.onrender.com/api/v1/getkey");
             const { key_id } = await keyResponse.json();
             console.log('Key Data:', key_id);
     
@@ -33,7 +33,7 @@ const ProductPage = () => {
                 receipt: "Receipt no. 1"
             };
     
-            const checkoutResponse = await fetch("http://localhost:8080/api/v1/checkout", {
+            const checkoutResponse = await fetch("https://payment-gateway-53ak.onrender.com/api/v1/checkout", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -57,7 +57,7 @@ const ProductPage = () => {
                 handler: async (response) => {
                     console.log("response", response)
                     try {
-                        const res = await fetch(`http://localhost:8080/api/v1/paymentverification`, {
+                        const res = await fetch(`https://payment-gateway-53ak.onrender.com/api/v1/paymentverification`, {
                             method: 'POST',
                             headers: {
                                 'content-type': 'application/json',
@@ -127,7 +127,7 @@ const ProductPage = () => {
         }
     
         try {
-            const res = await fetch('http://localhost:8080/api/v1/addtocart', {
+            const res = await fetch('https://payment-gateway-53ak.onrender.com/api/v1/addtocart', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

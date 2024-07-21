@@ -19,7 +19,7 @@ const RefundedProducts = () => {
         }
 
         try{
-            const res = await fetch("http://localhost:8080/api/v1/refundedproducts",{
+            const res = await fetch("https://payment-gateway-53ak.onrender.com/api/v1/refundedproducts",{
                 method:'POST',
                 headers: {
                     'Content-Type': 'application/json',

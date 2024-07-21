@@ -29,7 +29,7 @@ const SignUp = () => {
 
     try {
       console.log(formData);
-      const response = await fetch('http://localhost:8080/api/v1/signup', {
+      const response = await fetch('https://payment-gateway-53ak.onrender.com/api/v1/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
